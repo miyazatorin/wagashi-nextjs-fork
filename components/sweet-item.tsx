@@ -37,8 +37,8 @@ export default function SweetItemComponent({ item }: SweetItemProps) {
         id: item.id,
         type: "sweet",
         item,
-        width: item.width,
-        height: item.height,
+        width: item.width*10,//mmとcmの補完のため商品サイズを10倍
+        height: item.height*10,
         offsetX,
         offsetY,
       }

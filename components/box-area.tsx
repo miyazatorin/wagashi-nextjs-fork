@@ -84,7 +84,6 @@ export default function BoxArea({
   }
   
   const [maxAreaSize, setMaxAreaSize] = useState(getMaxAreaSize())
-  
   // ウィンドウリサイズ時にサイズを更新
   useEffect(() => {
     const handleResize = () => {
@@ -165,6 +164,14 @@ export default function BoxArea({
     // 箱サイズの設定
     const [width, height] = boxSize.split("x").map(Number)
     setGridSize({ width, height })
+  }, [boxSize])
+
+  useEffect(() => {
+    // 箱サイズの設定（cm単位）
+    // 例: "10x10" -> width: 100, height: 100 (mm単位で10倍に拡大)
+    const [width, height] = boxSize.split("x").map(Number)
+    // 10倍して、より細かいグリッド（1グリッド = 1mm）にする
+    setGridSize({ width: width * 10, height: height * 10 })
   }, [boxSize])
 
   // 削除された商品をチェックする関数
@@ -1220,9 +1227,9 @@ export default function BoxArea({
           詰め合わせ箱
         </h2>
         <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-          <span>サイズ: {boxSize} ({gridSize.width}×{gridSize.height}マス)</span>
+          <span>サイズ: {boxSize} ({boxSize.split('x')[0]}cm×{boxSize.split('x')[1]}cm)</span>
           <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-            マス目サイズ: {cellSize}px
+            グリッド: {gridSize.width}×{gridSize.height}マス (1マス = 1mm)
           </span>
         </div>
       </div>
