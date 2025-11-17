@@ -70,26 +70,26 @@ export default function BoxArea({
       // デスクトップ（lg以上）
       if (viewportWidth >= 1024) {
         return {
-          maxWidth: 900,
-          maxHeight: 700,
+          maxWidth: 600,
+          maxHeight: 500,
         }
       }
       // タブレット（md以上）
       else if (viewportWidth >= 768) {
         return {
-          maxWidth: 600,
-          maxHeight: 500,
+          maxWidth: 450,
+          maxHeight: 400,
         }
       }
       // モバイル
       else {
         return {
-          maxWidth: 400,
-          maxHeight: 350,
+          maxWidth: 350,
+          maxHeight: 300,
         }
       }
     }
-    return { maxWidth: 900, maxHeight: 700 } // サーバーサイドレンダリング時のデフォルト
+    return { maxWidth: 600, maxHeight: 500 } // サーバーサイドレンダリング時のデフォルト
   }
   
   const [maxDisplaySize, setMaxDisplaySize] = useState(getMaxDisplaySize())

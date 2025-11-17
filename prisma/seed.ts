@@ -10,22 +10,58 @@ async function main() {
   const boxTypes = []
   const boxTypeData = [
     {
-      size: '10x10',
-      name: '小箱',
+      size: '22x22',
+      name: 'MX1',
+      price: 200,
+      description: ''
+    },
+    {
+      size: '25.5x22',
+      name: 'MX2',
+      price: 200,
+      description: ''
+    },
+    {
+      size: '28.5x22',
+      name: 'MX3',
+      price: 250,
+      description: ''
+    },
+    {
+      size: '32.5x22',
+      name: 'MX4',
+      price: 250,
+      description: ''
+    },
+    {
+      size: '35x22',
+      name: 'MX5',
       price: 300,
-      description: '少量の和菓子に最適な小さな箱です'
+      description: ''
     },
     {
-      size: '15x15',
-      name: '中箱',
-      price: 500,
-      description: '中程度の量の和菓子に適した箱です'
+      size: '37.5x22',
+      name: 'MX6',
+      price: 300,
+      description: ''
     },
     {
-      size: '20x20',
-      name: '大箱',
-      price: 800,
-      description: 'たくさんの和菓子を詰め合わせできる大きな箱です'
+      size: '39x22',
+      name: 'MX7',
+      price: 300,
+      description: ''
+    },
+    {
+      size: '42x22',
+      name: 'MX8',
+      price: 350,
+      description: ''
+    },
+    {
+      size: '45x22',
+      name: 'MX9',
+      price: 350,
+      description: ''
     }
   ]
 
