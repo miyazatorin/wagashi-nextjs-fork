@@ -58,15 +58,15 @@ export default function SelectionArea({ placedItems, setPlacedItems, inventoryDa
   // カテゴリーの配列（動的に生成）
   const getCategories = () => {
     const sweetCategories = [...new Set(sweets.map(sweet => sweet.category))]
-    const dividerCategories = ["仕切り"]
-    const allCategories = [...sweetCategories, ...dividerCategories]
+    //const dividerCategories = ["仕切り"]
+    const allCategories = [...sweetCategories/*, ...dividerCategories*/]
     console.log("生成されたカテゴリー:", allCategories)
     console.log("商品のカテゴリー一覧:", sweetCategories)
     return allCategories
   }
 
   // 初期カテゴリー（データ読み込み前用）
-  const initialCategories = ["焼き菓子", "餅菓子", "水菓子", "干菓子", "蒸し菓子", "季節限定", "伝統菓子", "和菓子", "洋菓子", "仕切り"]
+  const initialCategories = ["焼き菓子", "餅菓子", "水菓子", "干菓子", "蒸し菓子", "季節限定", "伝統菓子", "和菓子", "洋菓子"]
   
   const categories = sweets.length > 0 ? getCategories() : initialCategories
 
