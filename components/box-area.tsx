@@ -105,9 +105,8 @@ export default function BoxArea({
   }, [])
   
   // セルサイズを動的に計算（幅と高さの制約を考慮）
-  const calculateCellSize = () => {
-    // グリッドの比率を計算
-    const aspectRatio = gridSize.width / gridSize.height
+  const calculateCellSize = useCallback(() => {
+    console.log("calculateCellSize called with gridSize:", gridSize, "maxDisplaySize:", maxDisplaySize)
     
     // 最大表示サイズ内に収まるようにセルサイズを計算
     let cellSizeByWidth = Math.floor(maxDisplaySize.maxWidth / gridSize.width)
@@ -115,9 +114,12 @@ export default function BoxArea({
     
     // 両方の制約を満たすセルサイズを選択（より小さい方）
     const cellSize = Math.min(cellSizeByWidth, cellSizeByHeight)
+    const finalCellSize = Math.max(cellSize, 1) // 最小セルサイズは1px
     
-    return Math.max(cellSize, 8) // 最小セルサイズは8px
-  }
+    console.log("cellSizeByWidth:", cellSizeByWidth, "cellSizeByHeight:", cellSizeByHeight, "finalCellSize:", finalCellSize)
+    
+    return finalCellSize
+  }, [gridSize, maxDisplaySize])
   
   const cellSize = calculateCellSize()
 
@@ -182,17 +184,12 @@ export default function BoxArea({
   }, [selectedStoreId])
 
   useEffect(() => {
-    // 箱サイズの設定
-    const [width, height] = boxSize.split("x").map(Number)
-    setGridSize({ width, height })
-  }, [boxSize])
-
-  useEffect(() => {
     // 箱サイズの設定（cm単位）
-    // 例: "10x10" -> width: 100, height: 100 (mm単位で10倍に拡大)
+    // 例: "22x22" (cm) -> width: 220, height: 220 (グリッドマス単位で1グリッド=1mm)
     const [width, height] = boxSize.split("x").map(Number)
     // 10倍して、より細かいグリッド（1グリッド = 1mm）にする
-    setGridSize({ width: width * 10, height: height * 10 })
+    const newGridSize = { width: width * 10, height: height * 10 }
+    setGridSize(newGridSize)
   }, [boxSize])
 
   // 削除された商品をチェックする関数

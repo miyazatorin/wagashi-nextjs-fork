@@ -1,5 +1,5 @@
 // 箱のサイズタイプ
-export type BoxSize = "10x10" | "15x15" | "20x20"
+export type BoxSize = "22x22" | "25.5x22" | "28.5x22" | "32.5x22" | "35x22" | "37.5x22" | "39x22" | "42x22" | "45x22"
 
 // 箱タイプの型
 export interface BoxType {
