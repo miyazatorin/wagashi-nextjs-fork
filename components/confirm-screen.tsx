@@ -25,7 +25,7 @@ type Props = {
 const formatYen = (n: number) => `¥${n.toLocaleString("ja-JP")}`
 
 // 詰め合わせイメージをレンダリングするコンポーネント
-function BoxPreview({ placedItems, boxSize }: { placedItems: PlacedItem[]; boxSize: BoxSize }) {
+export function BoxPreview({ placedItems, boxSize }: { placedItems: PlacedItem[]; boxSize: BoxSize }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isReady, setIsReady] = useState(false)
   useEffect(() => {
@@ -141,6 +141,7 @@ export default function ConfirmScreen({
   const [activeTab, setActiveTab] = useState<number>(activeTabIndex)
   const [needsNoshi, setNeedsNoshi] = useState<boolean>(false)
   const [needsBag, setNeedsBag] = useState<boolean>(false)
+  const [isComplete, setIsComplete] = useState<boolean>(false)
   const bagPrice = 5 // 袋は +5円
   const boxPrice = selectedBoxType?.price || 0
   const productTotal = products.reduce((s: number, p: Product) => s + p.price, 0)
@@ -148,6 +149,21 @@ export default function ConfirmScreen({
   const total = productTotal + boxPrice + bagTotal
   const tabs = ["商品", "アレルゲン", "のし", "袋"]
 
+  if (isComplete) {
+    const ConfirmComplete = require("./confirm-complete.tsx").default
+    return (
+      <ConfirmComplete
+        products={products}
+        placedItems={placedItems}
+        boxSize={boxSize}
+        selectedBoxType={selectedBoxType}
+        needsNoshi={needsNoshi}
+        needsBag={needsBag}
+        onBack={() => setIsComplete(false)}
+        onSave={() => alert("データ保存処理（実装例）")}
+      />
+    )
+  }
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-sm p-6">
@@ -340,7 +356,7 @@ export default function ConfirmScreen({
 
               <div>
                 <button
-                  onClick={onPurchase}
+                  onClick={() => setIsComplete(true)}
                   className="px-6 py-2 rounded-full bg-gradient-to-tr from-blue-400 to-blue-500 text-white font-semibold shadow"
                 >
                   購入

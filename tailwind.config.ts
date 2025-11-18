@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 const config: Config = {
     darkMode: ["class"],
@@ -8,9 +9,16 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "*.{js,ts,jsx,tsx,mdx}"
   ],
-  theme: {
-  	extend: {
-  		colors: {
+	theme: {
+	extend: {
+		fontFamily: {
+				rounded: [
+					'var(--font-noto-sans-jp)',
+					'sans-serif'
+				]
+		},
+		colors: {
+			orange: colors.orange,
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
