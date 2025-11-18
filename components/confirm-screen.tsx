@@ -196,13 +196,7 @@ export default function ConfirmScreen({
               {placedItems && placedItems.length > 0 ? (
                 <BoxPreview placedItems={placedItems} boxSize={boxSize} />
               ) : (
-                <Image
-                  src={products[0]?.image ?? "/images/wagashi/daifuku_1.png"}
-                  alt="完成イメージ"
-                  width={420}
-                  height={420}
-                  className="object-cover w-full h-full"
-                />
+                <BoxPreview placedItems={[]} boxSize={boxSize} />
               )}
             </div>
           </div>

@@ -414,22 +414,6 @@ export default function WagashiSimulatorContent({
                   <Package className="h-5 w-5" />
                   <span className="hidden xl:inline ml-1">在庫管理</span>
                 </Button>
-                {/* 確認ボタン（デスクトップ）: 在庫管理の右、設定の左に配置 */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-[var(--color-indigo-light)]"
-                  onClick={() => {
-                    // 配置済みアイテムとボックスサイズを SessionStorage に保存
-                    sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
-                    sessionStorage.setItem("boxSize", boxSize)
-                    sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
-                    router.push('/confirm')
-                  }}
-                >
-                  <Eye className="h-5 w-5" />
-                  <span className="hidden xl:inline ml-1">確認</span>
-                </Button>
 
                 <Button
                   variant="ghost"
@@ -473,11 +457,24 @@ export default function WagashiSimulatorContent({
                   <span className="text-gray-600">箱代:</span>
                   <span>{selectedBoxType ? selectedBoxType.price.toLocaleString() : 0}円</span>
                 </div>
-                <div className="border-t pt-2 flex justify-between">
+                <div className="border-t pt-2 flex items-center justify-between gap-2">
                   <span className="text-lg font-medium text-[var(--color-indigo)]">合計:</span>
                   <span className="text-xl font-bold text-[var(--color-indigo)]" data-testid="total-price">
                     {calculateTotalPrice().toLocaleString()}円
                   </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-[var(--color-indigo)] hover:bg-[var(--color-indigo-light)] ml-2"
+                    onClick={() => {
+                      sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
+                      sessionStorage.setItem("boxSize", boxSize)
+                      sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                      router.push('/confirm')
+                    }}
+                  >
+                    <Eye className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -541,6 +538,19 @@ export default function WagashiSimulatorContent({
                     <span className="text-xl font-bold text-[var(--color-indigo)]" data-testid="total-price">
                       {calculateTotalPrice().toLocaleString()}円
                     </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="font-bold px-4 py-1 rounded bg-[var(--color-indigo-light)] border border-[var(--color-indigo)] text-white hover:bg-[var(--color-indigo)] hover:text-white transition-colors text-base shadow"
+                      onClick={() => {
+                        sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
+                        sessionStorage.setItem("boxSize", boxSize)
+                        sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                        router.push('/confirm')
+                      }}
+                    >
+                      確認
+                    </Button>
                   </div>
                 </div>
               </div>
