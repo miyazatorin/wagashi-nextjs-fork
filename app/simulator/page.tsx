@@ -31,7 +31,7 @@ export default function WagashiSimulator() {
     refetch: refetchMaintenanceStatus 
   } = useMaintenanceMode()
 
-  const [boxSize, setBoxSize] = useState<BoxSize>("10x10")
+  const [boxSize, setBoxSize] = useState<BoxSize>("22x22")
   const [placedItems, setPlacedItems] = useState<PlacedItem[]>([])
   const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)

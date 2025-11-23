@@ -22,9 +22,11 @@ import BoxSelectionModal from "@/components/box-selection-modal"
 import type { BoxSize, PlacedItem, SweetItem, BoxType } from "@/types/types"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { PlusCircle, Save, Upload, HelpCircle, Settings, Package, Cloud, Printer, Trash2 } from "lucide-react"
+import { PlusCircle, Save, Upload, HelpCircle, Settings, Package, Cloud, Printer, Trash2, Eye } from "lucide-react"
 
 import { useState, useEffect } from "react"
+//追加
+import { useRouter } from "next/navigation"
 
 interface WagashiSimulatorContentProps {
   boxSize: BoxSize
@@ -80,6 +82,9 @@ export default function WagashiSimulatorContent({
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false)
   // 箱選択モーダルの状態
   const [isBoxSelectionOpen, setIsBoxSelectionOpen] = useState(false)
+
+  //追加： Next.js のルーター
+  const router = useRouter()
 
   // 要素の参照
   const selectionAreaRef = null
@@ -307,6 +312,23 @@ export default function WagashiSimulatorContent({
                   >
                     <Printer className="h-4 w-4" />
                   </Button>
+
+                  {/* 確認ボタン（モバイル）: 他のボタンと同じ見た目で /confirm に遷移します */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-[var(--color-indigo-light)] px-2"
+                    onClick={() => {
+                      // 配置済みアイテムとボックスサイズを SessionStorage に保存
+                      sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
+                      sessionStorage.setItem("boxSize", boxSize)
+                      sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                      router.push('/confirm')
+                    }}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -497,6 +519,21 @@ export default function WagashiSimulatorContent({
                   <span className="text-xl font-bold text-[var(--color-indigo)]" data-testid="total-price">
                     {calculateTotalPrice().toLocaleString()}円
                   </span>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-[var(--color-indigo)] hover:bg-[var(--color-indigo-light)] ml-2"
+                    onClick={() => {
+                      sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
+                      sessionStorage.setItem("boxSize", boxSize)
+                      sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                      router.push('/confirm')
+                    }}
+                  >
+                    <Eye className="h-5 w-5" />
+                  </Button>
+
                 </div>
               </div>
             </div>
@@ -560,6 +597,21 @@ export default function WagashiSimulatorContent({
                     <span className="text-xl font-bold text-[var(--color-indigo)]" data-testid="total-price">
                       {calculateTotalPrice().toLocaleString()}円
                     </span>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="font-bold px-4 py-1 rounded bg-[var(--color-indigo-light)] border border-[var(--color-indigo)] text-white hover:bg-[var(--color-indigo)] hover:text-white transition-colors text-base shadow"
+                      onClick={() => {
+                        sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
+                        sessionStorage.setItem("boxSize", boxSize)
+                        sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                        router.push('/confirm')
+                      }}
+                    >
+                      確認
+                    </Button>
+
                   </div>
 
                   {/* 上限金額設定（デスクトップ） */}
