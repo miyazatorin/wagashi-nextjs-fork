@@ -27,9 +27,19 @@ export default function ConfirmComplete({
   onSave,
 }: ConfirmCompleteProps) {
   const router = useRouter();
+  const [showDialog, setShowDialog] = React.useState(false);
   const handleBack = () => {
-    router.push("/simulator")
+    setShowDialog(true);
+  }
+  const handleConfirm = () => {
+    // 初期化処理（localStorageやsessionStorageの詰め合わせデータをクリアする場合はここで）
+    // 例: localStorage.removeItem('placedItems');
+    router.push("/simulator");
+    setShowDialog(false);
     if (onBack) onBack();
+  }
+  const handleCancel = () => {
+    setShowDialog(false);
   }
   // 商品合計
   const productsTotal = products.reduce((sum, p) => sum + (p.price || 0), 0);
@@ -67,6 +77,29 @@ export default function ConfirmComplete({
             詰め合わせに戻る
           </button>
         </div>
+        {showDialog && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 min-w-[300px] flex flex-col items-center">
+              <div className="mb-4 text-lg font-bold text-gray-800 text-center">
+                現在のデータは破棄されますがよろしいですか？
+              </div>
+              <div className="flex gap-4">
+                <button
+                  className="px-6 py-2 rounded bg-blue-400 text-white font-bold shadow hover:bg-blue-500"
+                  onClick={handleConfirm}
+                >
+                  はい
+                </button>
+                <button
+                  className="px-6 py-2 rounded bg-gray-300 text-gray-800 font-bold shadow hover:bg-gray-400"
+                  onClick={handleCancel}
+                >
+                  いいえ
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
