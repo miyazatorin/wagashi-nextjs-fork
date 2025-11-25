@@ -12,55 +12,55 @@ async function main() {
     {
       size: '22x22',
       name: 'MX1',
-      price: 200,
+      price: 220,
       description: ''
     },
     {
       size: '25.5x22',
       name: 'MX2',
-      price: 200,
+      price: 220,
       description: ''
     },
     {
       size: '28.5x22',
       name: 'MX3',
-      price: 250,
+      price: 275,
       description: ''
     },
     {
       size: '32.5x22',
       name: 'MX4',
-      price: 250,
+      price: 275,
       description: ''
     },
     {
       size: '35x22',
       name: 'MX5',
-      price: 300,
+      price: 330,
       description: ''
     },
     {
       size: '37.5x22',
       name: 'MX6',
-      price: 300,
+      price: 330,
       description: ''
     },
     {
       size: '39x22',
       name: 'MX7',
-      price: 300,
+      price: 330,
       description: ''
     },
     {
       size: '42x22',
       name: 'MX8',
-      price: 350,
+      price: 385,
       description: ''
     },
     {
       size: '45x22',
       name: 'MX9',
-      price: 350,
+      price: 385,
       description: ''
     }
   ]
