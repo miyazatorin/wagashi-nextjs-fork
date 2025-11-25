@@ -323,6 +323,11 @@ export default function WagashiSimulatorContent({
                       sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
                       sessionStorage.setItem("boxSize", boxSize)
                       sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                      // products（詰め合わせ内訳）とオプション情報も保存
+                      sessionStorage.setItem("products", JSON.stringify(groupedPlacedItems))
+                      sessionStorage.setItem("needsNoshi", JSON.stringify(false))
+                      sessionStorage.setItem("needsBag", JSON.stringify(selectedBag.qty > 0))
+                      sessionStorage.setItem("selectedBag", JSON.stringify(selectedBag))
                       router.push('/confirm')
                     }}
                   >
@@ -520,19 +525,23 @@ export default function WagashiSimulatorContent({
                     {calculateTotalPrice().toLocaleString()}円
                   </span>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-[var(--color-indigo)] hover:bg-[var(--color-indigo-light)] ml-2"
-                    onClick={() => {
-                      sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
-                      sessionStorage.setItem("boxSize", boxSize)
-                      sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
-                      router.push('/confirm')
-                    }}
-                  >
-                    <Eye className="h-5 w-5" />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-[var(--color-indigo)] hover:bg-[var(--color-indigo-light)] ml-2"
+                      onClick={() => {
+                        sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
+                        sessionStorage.setItem("boxSize", boxSize)
+                        sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                        sessionStorage.setItem("products", JSON.stringify(groupedPlacedItems))
+                        sessionStorage.setItem("needsNoshi", JSON.stringify(false))
+                        sessionStorage.setItem("needsBag", JSON.stringify(selectedBag.qty > 0))
+                        sessionStorage.setItem("selectedBag", JSON.stringify(selectedBag))
+                        router.push('/confirm')
+                      }}
+                    >
+                      <Eye className="h-5 w-5" />
+                    </Button>
 
                 </div>
               </div>
@@ -606,6 +615,10 @@ export default function WagashiSimulatorContent({
                         sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
                         sessionStorage.setItem("boxSize", boxSize)
                         sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                        sessionStorage.setItem("products", JSON.stringify(groupedPlacedItems))
+                        sessionStorage.setItem("needsNoshi", JSON.stringify(false))
+                        sessionStorage.setItem("needsBag", JSON.stringify(selectedBag.qty > 0))
+                        sessionStorage.setItem("selectedBag", JSON.stringify(selectedBag))
                         router.push('/confirm')
                       }}
                     >

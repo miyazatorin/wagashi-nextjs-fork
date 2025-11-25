@@ -70,8 +70,8 @@ export default function BoxArea({
       // デスクトップ（lg以上）
       if (viewportWidth >= 1024) {
         return {
-          maxWidth: 900,
-          maxHeight: 750,
+          maxWidth: 720,
+          maxHeight: 600,
         }
       }
       // タブレット（md以上）
