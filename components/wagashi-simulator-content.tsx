@@ -138,6 +138,8 @@ export default function WagashiSimulatorContent({
   const handleBoxSelection = (newBoxSize: BoxSize, boxType: BoxType) => {
     setBoxSize(newBoxSize)
     onBoxTypeChange?.(boxType)
+    // 箱サイズ変更時に配置済みアイテムをクリア
+    setPlacedItems([])
   }
 
   // 和菓子が配置されているかチェック
