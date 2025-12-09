@@ -109,8 +109,8 @@ export default function BoxArea({
     console.log("calculateCellSize called with gridSize:", gridSize, "maxDisplaySize:", maxDisplaySize)
     
     // 最大表示サイズ内に収まるようにセルサイズを計算
-    let cellSizeByWidth = Math.floor(maxDisplaySize.maxWidth / gridSize.width)
-    let cellSizeByHeight = Math.floor(maxDisplaySize.maxHeight / gridSize.height)
+    let cellSizeByWidth = (maxDisplaySize.maxWidth / gridSize.width)
+    let cellSizeByHeight = (maxDisplaySize.maxHeight / gridSize.height)
     
     // 両方の制約を満たすセルサイズを選択（より小さい方）
     const cellSize = Math.min(cellSizeByWidth, cellSizeByHeight)
