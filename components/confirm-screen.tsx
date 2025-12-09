@@ -37,11 +37,17 @@ export function BoxPreview({ placedItems, boxSize }: { placedItems: PlacedItem[]
     
     // グリッドサイズを決定
     const gridMap: Record<BoxSize, number> = {
-      "10x10": 10,
-      "15x15": 15,
-      "20x20": 20,
+      "22x22": 220,
+      "25.5x22": 255,
+      "28.5x22": 285,
+      "32.5x22": 325,
+      "35x22": 350,
+      "37.5x22": 375,
+      "39x22": 390,
+      "42x22": 420,
+      "45x22": 450,
     }
-    const gridSize = gridMap[boxSize] || 10
+    const gridSize = gridMap[boxSize] || 220
     
     // キャンバスサイズ設定
     const cellSize = 40
@@ -130,7 +136,7 @@ export function BoxPreview({ placedItems, boxSize }: { placedItems: PlacedItem[]
 export default function ConfirmScreen({
   products,
   placedItems = [],
-  boxSize = "10x10",
+  boxSize = "22x22",
   selectedBoxType = null,
   activeTabIndex = 0,
   onBack,

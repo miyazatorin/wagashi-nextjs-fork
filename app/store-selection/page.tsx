@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Loader2, Store, MapPin, Phone, Download } from "lucide-react"
@@ -73,9 +74,15 @@ export default function StoreSelectionPage() {
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 p-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            和菓子詰め合わせシミュレーター
-          </h1>
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/images/icon.png"
+              alt="和菓子詰め合わせシミュレーター"
+              width={300}
+              height={100}
+              priority
+            />
+          </div>
           <p className="text-gray-600 mb-4">
             ご利用になる店舗を選択してください
           </p>
@@ -89,6 +96,15 @@ export default function StoreSelectionPage() {
               <Download className="h-4 w-4" />
               カスタマーコードで復元
             </Button>
+            <div className="ml-4">{/*ここから8行追加*/}
+              <Button
+                variant="outline"
+                onClick={() => router.push('/admin')}
+                className="border border-gray-400 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100"
+                >
+                管理画面へ
+              </Button>
+            </div>
           </div>
         </div>
 

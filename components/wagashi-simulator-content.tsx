@@ -4,6 +4,15 @@ import type React from "react"
 
 import BoxArea from "@/components/box-area"
 import SelectionArea from "@/components/selection-area"
+
+//追加：袋の種類と価格（グローバル）
+const BAG_TYPES = [
+  { key: "mini", label: "ミニ袋", price: 11 },
+  { key: "small", label: "小袋", price: 11 },
+  { key: "large", label: "大袋", price: 22 },
+  { key: "wide", label: "底広袋", price: 22 },
+]
+
 import HelpModal from "@/components/help-modal"
 import InfoSettingsModal, { type InfoDisplaySettings } from "@/components/info-settings-modal"
 import InventorySettingsModal from "@/components/inventory-settings-modal"
@@ -16,6 +25,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { PlusCircle, Save, Upload, HelpCircle, Settings, Package, Cloud, Printer, Trash2, Eye } from "lucide-react"
 
 import { useState, useEffect } from "react"
+//追加
 import { useRouter } from "next/navigation"
 
 interface WagashiSimulatorContentProps {
@@ -61,6 +71,8 @@ export default function WagashiSimulatorContent({
 }: WagashiSimulatorContentProps) {
   // 在庫管理モーダルの状態
   const [isInventoryOpen, setIsInventoryOpen] = useState(false)
+  // 追加：袋選択状態
+  const [selectedBag, setSelectedBag] = useState<{ type: string; qty: number }>({ type: "mini", qty: 0 })
   // 在庫データの状態
   const [inventoryData, setInventoryData] = useState<SweetItem[]>([])
   // 商品変更通知モーダルの状態
@@ -71,7 +83,7 @@ export default function WagashiSimulatorContent({
   // 箱選択モーダルの状態
   const [isBoxSelectionOpen, setIsBoxSelectionOpen] = useState(false)
 
-  // Next.js のクライアントナビゲーション用 router
+  //追加： Next.js のルーター
   const router = useRouter()
 
   // 要素の参照
@@ -134,13 +146,60 @@ export default function WagashiSimulatorContent({
 
   // 合計金額を計算する関数
   const calculateTotalPrice = () => {
-    const sweetsTotal = placedItems
+    const subTotal = placedItems
       .filter((item) => item.type === "sweet" && item.price)
       .reduce((total, item) => total + (item.price || 0), 0)
     
     const boxPrice = selectedBoxType?.price || 0
-    return sweetsTotal + boxPrice
+    const boxAmount = boxPrice
+    const sweetsTotal = subTotal*1.08
+    // 追加：袋の価格を計算
+    const bagTypeObj = BAG_TYPES.find(b => b.key === selectedBag.type)
+    const bagTotal = bagTypeObj ? bagTypeObj.price * (selectedBag.qty || 0) : 0
+    const total = Math.floor(sweetsTotal + boxAmount + bagTotal)
+    return total
   }
+
+  // 詰め合わせの上限金額（円）を設定する状態
+  const [priceLimitStr, setPriceLimitStr] = useState<string>("")
+  const [priceLimit, setPriceLimit] = useState<number | null>(null)
+
+  const applyPriceLimit = () => {
+    const n = parseInt(priceLimitStr.replace(/[^0-9]/g, ""))
+    if (!Number.isNaN(n)) {
+      setPriceLimit(n)
+    } else {
+      setPriceLimit(null)
+    }
+  }
+
+  const clearPriceLimit = () => {
+    setPriceLimitStr("")
+    setPriceLimit(null)
+  }
+
+  const remainingAmount = priceLimit !== null ? priceLimit - calculateTotalPrice() : null
+
+  // 配置済み商品のグループ化（itemId ベース）
+  const groupedPlacedItems = Object.values(
+    placedItems
+      .filter((item) => item.type === 'sweet')
+      .reduce((acc: Record<string, any>, item) => {
+        const key = item.itemId || item.name
+        if (!acc[key]) {
+          acc[key] = {
+            itemId: item.itemId,
+            name: item.name,
+            price: item.price || 0,
+            imageUrl: item.imageUrl,
+            qty: 0,
+          }
+        }
+        acc[key].qty += 1
+        if ((item.price || 0) > acc[key].price) acc[key].price = item.price || acc[key].price
+        return acc
+      }, {})
+  )
 
   return (
     <TooltipProvider>
@@ -256,6 +315,7 @@ export default function WagashiSimulatorContent({
                   >
                     <Printer className="h-4 w-4" />
                   </Button>
+
                   {/* 確認ボタン（モバイル）: 他のボタンと同じ見た目で /confirm に遷移します */}
                   <Button
                     variant="ghost"
@@ -266,11 +326,17 @@ export default function WagashiSimulatorContent({
                       sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
                       sessionStorage.setItem("boxSize", boxSize)
                       sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                      // products（詰め合わせ内訳）とオプション情報も保存
+                      sessionStorage.setItem("products", JSON.stringify(groupedPlacedItems))
+                      sessionStorage.setItem("needsNoshi", JSON.stringify(false))
+                      sessionStorage.setItem("needsBag", JSON.stringify(selectedBag.qty > 0))
+                      sessionStorage.setItem("selectedBag", JSON.stringify(selectedBag))
                       router.push('/confirm')
                     }}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -462,19 +528,25 @@ export default function WagashiSimulatorContent({
                   <span className="text-xl font-bold text-[var(--color-indigo)]" data-testid="total-price">
                     {calculateTotalPrice().toLocaleString()}円
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-[var(--color-indigo)] hover:bg-[var(--color-indigo-light)] ml-2"
-                    onClick={() => {
-                      sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
-                      sessionStorage.setItem("boxSize", boxSize)
-                      sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
-                      router.push('/confirm')
-                    }}
-                  >
-                    <Eye className="h-5 w-5" />
-                  </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-[var(--color-indigo)] hover:bg-[var(--color-indigo-light)] ml-2"
+                      onClick={() => {
+                        sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
+                        sessionStorage.setItem("boxSize", boxSize)
+                        sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                        sessionStorage.setItem("products", JSON.stringify(groupedPlacedItems))
+                        sessionStorage.setItem("needsNoshi", JSON.stringify(false))
+                        sessionStorage.setItem("needsBag", JSON.stringify(selectedBag.qty > 0))
+                        sessionStorage.setItem("selectedBag", JSON.stringify(selectedBag))
+                        router.push('/confirm')
+                      }}
+                    >
+                      <Eye className="h-5 w-5" />
+                    </Button>
+
                 </div>
               </div>
             </div>
@@ -538,6 +610,7 @@ export default function WagashiSimulatorContent({
                     <span className="text-xl font-bold text-[var(--color-indigo)]" data-testid="total-price">
                       {calculateTotalPrice().toLocaleString()}円
                     </span>
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -546,15 +619,94 @@ export default function WagashiSimulatorContent({
                         sessionStorage.setItem("placedItems", JSON.stringify(placedItems))
                         sessionStorage.setItem("boxSize", boxSize)
                         sessionStorage.setItem("selectedBoxType", JSON.stringify(selectedBoxType))
+                        sessionStorage.setItem("products", JSON.stringify(groupedPlacedItems))
+                        sessionStorage.setItem("needsNoshi", JSON.stringify(false))
+                        sessionStorage.setItem("needsBag", JSON.stringify(selectedBag.qty > 0))
+                        sessionStorage.setItem("selectedBag", JSON.stringify(selectedBag))
                         router.push('/confirm')
                       }}
                     >
                       確認
                     </Button>
+
                   </div>
+
+                  {/* 上限金額設定（デスクトップ） */}
+                  <div className="pt-3">
+                    <div className="flex items-center gap-2 flex-nowrap">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="上限額（円）を入力"
+                        value={priceLimitStr}
+                        onChange={(e) => setPriceLimitStr(e.target.value)}
+                        className="flex-1 min-w-0 p-2 border rounded text-sm"
+                      />
+                      <button onClick={applyPriceLimit} className="px-3 py-2 bg-[var(--color-indigo)] text-white rounded text-sm whitespace-nowrap">設定</button>
+                      <button onClick={clearPriceLimit} className="px-3 py-2 border rounded text-sm whitespace-nowrap">クリア</button>
+                    </div>
+                    {priceLimit !== null && (
+                      <div className="mt-2 text-sm">
+                        {remainingAmount !== null && remainingAmount >= 0 ? (
+                          <div className="text-green-600">残り: {remainingAmount.toLocaleString()}円</div>
+                        ) : (
+                          <div className="text-red-600">超過: {Math.abs(remainingAmount || 0).toLocaleString()}円</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               </div>
+
+              {/* 配置済み商品の詳細リスト */}
+              <div className="mb-4 bg-white rounded-sm border border-gray-100 shadow-sm p-4 overflow-auto">
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">詰め合わせ内訳</h3>
+                {groupedPlacedItems.length === 0 ? (
+                  <p className="text-sm text-gray-500">和菓子が配置されていません</p>
+                ) : (
+                  <div className="space-y-3">
+                    {groupedPlacedItems.map((g) => (
+                      <div key={g.itemId || g.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {g.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={g.imageUrl} alt={g.name} className="w-10 h-10 object-cover rounded" />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-sm text-gray-400">?</div>
+                          )}
+                          <div>
+                            <div className="text-sm font-medium text-gray-800">{g.name}</div>
+                            <div className="text-xs text-gray-500">単価: {g.price?.toLocaleString() || 0}円</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-medium">{g.qty}個</div>
+                          <div className="text-xs text-gray-500">小計: {(g.price * g.qty).toLocaleString()}円</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 和菓子選択（右端） */}
+            <div className="flex flex-col min-h-[calc(100vh-140px)] w-64 flex-shrink-0">
+              <div ref={selectionAreaRef} className="flex-1">
+                <SelectionArea
+                  placedItems={placedItems}
+                  setPlacedItems={setPlacedItems}
+                  inventoryData={inventoryData}
+                  selectedStoreId={selectedStoreId}
+                  //追加
+                  selectedBag={selectedBag}
+                  setSelectedBag={setSelectedBag}
+                />
+              </div>
+            </div>
               
+              {/*
               <div ref={selectionAreaRef} className="flex-1">
                 <SelectionArea
                   placedItems={placedItems}
@@ -563,7 +715,8 @@ export default function WagashiSimulatorContent({
                   selectedStoreId={selectedStoreId}
                 />
               </div>
-            </div>
+              */}
+
           </div>
         </main>
 

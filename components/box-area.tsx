@@ -61,45 +61,67 @@ export default function BoxArea({
   // 仕切り長さ調整用の状態
   const [resizingDivider, setResizingDivider] = useState<PlacedItem | null>(null)
 
-  // レスポンシブな最大エリアサイズを定義
-  const getMaxAreaSize = () => {
+  // 表示上の最大サイズを定義（cm単位の箱サイズに基づいて計算）
+  const getMaxDisplaySize = () => {
     if (typeof window !== 'undefined') {
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
       
       // デスクトップ（lg以上）
       if (viewportWidth >= 1024) {
-        return Math.min(900, viewportWidth * 0.6, viewportHeight * 0.85)
+        return {
+          maxWidth: 720,
+          maxHeight: 600,
+        }
       }
       // タブレット（md以上）
       else if (viewportWidth >= 768) {
-        return Math.min(700, viewportWidth * 0.8, viewportHeight * 0.75)
+        return {
+          maxWidth: 450,
+          maxHeight: 400,
+        }
       }
       // モバイル
       else {
-        return Math.min(450, viewportWidth * 0.98, viewportHeight * 0.65)
+        return {
+          maxWidth: 350,
+          maxHeight: 300,
+        }
       }
     }
-    return 900 // サーバーサイドレンダリング時のデフォルト
+    return { maxWidth: 600, maxHeight: 500 } // サーバーサイドレンダリング時のデフォルト
   }
   
-  const [maxAreaSize, setMaxAreaSize] = useState(getMaxAreaSize())
+  const [maxDisplaySize, setMaxDisplaySize] = useState(getMaxDisplaySize())
   
   // ウィンドウリサイズ時にサイズを更新
   useEffect(() => {
     const handleResize = () => {
-      setMaxAreaSize(getMaxAreaSize())
+      setMaxDisplaySize(getMaxDisplaySize())
     }
     
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
   
-  // セルサイズを動的に計算（最小サイズを確保）
-  const cellSize = Math.max(
-    Math.floor(maxAreaSize / Math.max(gridSize.width, gridSize.height)),
-    12 // 最小セルサイズをさらに小さく
-  )
+  // セルサイズを動的に計算（幅と高さの制約を考慮）
+  const calculateCellSize = useCallback(() => {
+    console.log("calculateCellSize called with gridSize:", gridSize, "maxDisplaySize:", maxDisplaySize)
+    
+    // 最大表示サイズ内に収まるようにセルサイズを計算
+    let cellSizeByWidth = (maxDisplaySize.maxWidth / gridSize.width)
+    let cellSizeByHeight = (maxDisplaySize.maxHeight / gridSize.height)
+    
+    // 両方の制約を満たすセルサイズを選択（より小さい方）
+    const cellSize = Math.min(cellSizeByWidth, cellSizeByHeight)
+    const finalCellSize = Math.max(cellSize, 1) // 最小セルサイズは1px
+    
+    console.log("cellSizeByWidth:", cellSizeByWidth, "cellSizeByHeight:", cellSizeByHeight, "finalCellSize:", finalCellSize)
+    
+    return finalCellSize
+  }, [gridSize, maxDisplaySize])
+  
+  const cellSize = calculateCellSize()
 
   // 新しく追加されたアイテムのIDを追跡
   const [newItemIds, setNewItemIds] = useState<Set<string>>(new Set())
@@ -162,9 +184,12 @@ export default function BoxArea({
   }, [selectedStoreId])
 
   useEffect(() => {
-    // 箱サイズの設定
+    // 箱サイズの設定（cm単位）
+    // 例: "22x22" (cm) -> width: 220, height: 220 (グリッドマス単位で1グリッド=1mm)
     const [width, height] = boxSize.split("x").map(Number)
-    setGridSize({ width, height })
+    // 10倍して、より細かいグリッド（1グリッド = 1mm）にする
+    const newGridSize = { width: width * 10, height: height * 10 }
+    setGridSize(newGridSize)
   }, [boxSize])
 
   // 削除された商品をチェックする関数
@@ -1123,7 +1148,7 @@ export default function BoxArea({
             setErrorModal({
               visible: true,
               title: "回転エラー",
-              message: "回転するとグリッド範囲外にはみ出してしまいます。位置を調整してから回転してください。",
+              message: "回転すると箱の外にはみ出してしまいます。位置を調整してから回転してください。",
             })
             // 元の状態を維持
             return item
@@ -1158,7 +1183,7 @@ export default function BoxArea({
             setErrorModal({
               visible: true,
               title: "回転エラー",
-              message: "回転すると他のアイテムと重なってしまいます。位置を調整してから回転してください。",
+              message: "回転すると他の商品と重なってしまいます。位置を調整してから回転してください。",
             })
             // 元の状態を維持
             return item
@@ -1169,6 +1194,7 @@ export default function BoxArea({
             ...item,
             width: newWidth,
             height: newHeight,
+            rotation: item.rotation === 0 ? 90 : item.rotation === 90 ? 180 : item.rotation === 180 ? 270 : 0,
           }
         }
         return item
@@ -1220,9 +1246,9 @@ export default function BoxArea({
           詰め合わせ箱
         </h2>
         <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-          <span>サイズ: {boxSize} ({gridSize.width}×{gridSize.height}マス)</span>
+          <span>サイズ: {boxSize} ({boxSize.split('x')[0]}cm×{boxSize.split('x')[1]}cm)</span>
           <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-            マス目サイズ: {cellSize}px
+            グリッド: {gridSize.width}×{gridSize.height}マス (1マス = 1mm)
           </span>
         </div>
       </div>
@@ -1234,16 +1260,13 @@ export default function BoxArea({
           }}
           data-testid="box-area"
           className={`relative border-2 border-[var(--color-indigo)] bg-[var(--color-beige-dark)] ${isOver && canDrop ? "drag-over" : ""
-            } rounded shadow-md max-w-full overflow-hidden`}
+            } rounded shadow-md overflow-hidden`}
           style={{
-            width: gridSize.width * cellSize, // 実際のグリッドサイズのみ
-            height: gridSize.height * cellSize, // 実際のグリッドサイズのみ
-            maxWidth: maxAreaSize, // レスポンシブな最大サイズを制限
-            maxHeight: maxAreaSize, // レスポンシブな最大サイズを制限
+            width: Math.min(gridSize.width * cellSize, maxDisplaySize.maxWidth),
+            height: Math.min(gridSize.height * cellSize, maxDisplaySize.maxHeight),
             display: "grid",
             gridTemplateColumns: `repeat(${gridSize.width}, ${cellSize}px)`,
             gridTemplateRows: `repeat(${gridSize.height}, ${cellSize}px)`,
-            minWidth: 'min-content', // 最小幅を内容に合わせる
           }}
         >
         {/* グリッド線 */}
