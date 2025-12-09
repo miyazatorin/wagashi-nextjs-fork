@@ -59,45 +59,47 @@ export default function SelectionArea({ placedItems, setPlacedItems, inventoryDa
   const getCategories = () => {
     const sweetCategories = [...new Set(sweets.map(sweet => sweet.category))]
     //const dividerCategories = ["仕切り"]
-    const allCategories = [...sweetCategories/*, ...dividerCategories*/]
+    const allCategories = ["全て",...sweetCategories/*, ...dividerCategories*/]
     console.log("生成されたカテゴリー:", allCategories)
     console.log("商品のカテゴリー一覧:", sweetCategories)
     return allCategories
   }
 
   // 初期カテゴリー（データ読み込み前用）
-  const initialCategories = ["焼き菓子", "餅菓子", "水菓子", "干菓子", "蒸し菓子", "季節限定", "伝統菓子", "和菓子", "洋菓子"]
+  const initialCategories = ["全て","焼き菓子", "餅菓子", "水菓子", "干菓子", "蒸し菓子", "季節限定", "伝統菓子", "和菓子", "洋菓子"]
   
   const categories = sweets.length > 0 ? getCategories() : initialCategories
 
   console.log("カテゴリー生成 - sweets.length:", sweets.length, "categories:", categories, "activeTab:", activeTab)
 
-  // アクティブタブが存在しないカテゴリーになった場合の処理
+  
+  // 初期状態でactiveTabを設定
   useEffect(() => {
-    if (sweets.length > 0 && !categories.includes(activeTab)) {
-      const firstCategory = categories.find(cat => cat !== "仕切り") || categories[0]
+    if (!activeTab && categories.length > 0) {
+      const firstCategory = categories[0] || "全て"          // ← 先頭（全て）に寄せる
+      console.log("初期カテゴリーを設定:", firstCategory)
       setActiveTab(firstCategory)
     }
-  }, [categories, activeTab, sweets.length])
+  }, [categories, activeTab])
 
   // データ読み込み後に最初のカテゴリーをアクティブにする
   useEffect(() => {
     console.log("データ読み込み後の処理 - sweets.length:", sweets.length, "activeTab:", activeTab, "categories:", categories)
     if (sweets.length > 0 && !activeTab) {
-      const firstCategory = categories.find(cat => cat !== "仕切り") || categories[0]
+      const firstCategory = categories[0] || "全て"           // ← 同上
       console.log("最初のカテゴリーを設定:", firstCategory)
       setActiveTab(firstCategory)
     }
   }, [sweets, categories, activeTab])
 
-  // 初期状態でactiveTabを設定
+  // アクティブタブが存在しないカテゴリーになった場合の処理
   useEffect(() => {
-    if (!activeTab && categories.length > 0) {
-      const firstCategory = categories.find(cat => cat !== "仕切り") || categories[0]
-      console.log("初期カテゴリーを設定:", firstCategory)
+    if (sweets.length > 0 && !categories.includes(activeTab)) {
+      const firstCategory = categories[0] || "全て"           // ← 同上
       setActiveTab(firstCategory)
     }
-  }, [categories, activeTab])
+  }, [categories, activeTab, sweets.length])
+
 
   // APIからデータを取得
   const loadData = async () => {
@@ -204,18 +206,28 @@ export default function SelectionArea({ placedItems, setPlacedItems, inventoryDa
     }
   }
 
-  // 指定したカテゴリに対する検索＋カテゴリフィルタを返すヘルパー
-  const getFilteredSweets = (category: string) => {
-    const term = searchTerm.trim().toLowerCase()
-    return sweets.filter((s) => {
-      if (category !== s.category) return false
-      if (!term) return true
-      // 名前と説明を対象に検索（必要であれば他のフィールドも追加可）
-      const inName = s.name?.toLowerCase().includes(term)
-      const inDesc = s.description?.toLowerCase().includes(term)
-      return inName || inDesc
-    })
-  }
+  
+// 指定したカテゴリに対する検索＋カテゴリフィルタを返すヘルパー
+const getFilteredSweets = (category: string) => {
+  const term = (searchTerm ?? "").trim().toLowerCase()
+
+  return sweets.filter((s) => {
+    // 「全て」ならカテゴリ判定をスキップ（= 全商品が対象）
+    const matchCategory = category === "全て" || s.category === category
+    if (!matchCategory) return false
+
+    // 検索語が空なら、そのままマッチ
+    if (!term) return true
+
+    // 名前と説明を対象に検索（null/undefined 安全化）
+    const name = (s.name ?? "").toLowerCase()
+    const desc = (s.description ?? "").toLowerCase()
+
+    const inName = name.includes(term)
+    const inDesc = desc.includes(term)
+    return inName || inDesc
+  })
+}
 
   const filteredForActiveTab = activeTab ? getFilteredSweets(activeTab) : []
 

@@ -113,7 +113,6 @@ async function main() {
   
   // 和菓子のカテゴリーを追加
   const categoryNames = [
-    '全て',
    '季節限定',
    '求肥',
    '餡もの',
@@ -323,7 +322,7 @@ async function main() {
    {
      id: 'test-product-011', 
      name: 'あんぱん饅頭',
-     category: '焼き饅頭',
+     category: '焼きまんじゅう',
      price: 250,
      size: '7x6.5',
      description: '北海道小豆を炊いて作る自慢のつぶ餡を、もちもち食感の生地でやさしく包みました。小さなお子様から年配の方まで幅広く好まれる味わいの、あんぱんのようなお饅頭です。',
@@ -339,7 +338,7 @@ async function main() {
    {
      id: 'test-product-012', 
      name: 'あんぱん饅頭３入',
-     category: '焼き饅頭',
+     category: '焼きまんじゅう',
      price: 850,
      size: '7x21',
      description: '北海道小豆を炊いて作る自慢のつぶ餡を、もちもち食感の生地でやさしく包みました。小さなお子様から年配の方まで幅広く好まれる味わいの、あんぱんのようなお饅頭です。',
